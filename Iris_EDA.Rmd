@@ -1,0 +1,96 @@
+
+*****
+####BACKGROUND####
+*****
+
+The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by
+Sir Ronald Fisher (1936) as an example of discriminant analysis. It is sometimes
+called Anderson's Iris data set because Edgar Anderson collected the data to quantify
+the morphologic variation of Iris flowers of three related species. Two of the three
+species were collected in the Gaspe Peninsula and all from the same pasture, and
+picked on the same day and measured at the same time by the same person with the
+same apparatus.
+
+The iris data set consists of 150 samples of Iris flowers consisting of 3 species viz. Setosa, Versicolour and Virginica. We have 50 samples from each species and their respective sepal length, sepal width, petal length and petal width in centimeters. In our data set, we have one categorical variable i.e. the flower species, which includes 3 categories and 4 other numeric variables. 
+
+We are going to perform the analysis in 3 steps: Exploratory data analysis, K-Nearest Neighbor Classification, and KMeans Clustering. We are going to divide our dataset into training and testing data, training data containing 80% of the data points and testing data containing 20% of the data points. 
+
+*****
+####Exploratory Data Analysis####
+*****
+
+Below is a sample of our data set:
+
+```{r echo=FALSE, results='asis'}
+library(knitr)
+kable(head(iris))
+```
+                   
+             
+                   Table 1 : Sample iris dataset
+                   
+                   
+```{r echo=FALSE}
+library(knitr)
+set.seed(12462210)
+iris_train<-iris[sample(x=nrow(iris), size=nrow(iris)*0.80),]
+kable(summary(iris_train[1:4]),row.names = TRUE, col.names = c('Sepal Length', 'Spal Width', 'Petal Length', 'Petal Width'))
+```
+
+                   Table 2 : Summary of the iris training data
+                  
+                   
+
+#Histograms
+```{r echo=FALSE}   
+set.seed(12462210)
+iris_train<-iris[sample(x=nrow(iris), size=nrow(iris)*0.80),]
+library(ggplot2)
+#Sepal.Length###################
+ggplot(data=iris_train, aes(x=iris_train$Sepal.Length))+
+  geom_histogram(binwidth=0.2, color="black", aes(fill=iris_train$Species)) + 
+  xlab("Sepal Length (cm)") +  
+  ylab("Frequency") +
+  ggtitle("Histogram of Sepal Length")+
+  geom_vline(data=iris_train, aes(xintercept = mean(iris_train$Sepal.Length)),linetype="dashed",color="red")+ scale_colour_manual(values=c("red","green","blue"))
+
+```
+
+Looking at the histogram, it seems that all the sepal length for versicolor and virginica are almost normally distribute while for setosa it seems to be negatively skewed
+
+```{r echo= FALSE}
+ggplot(iris_train, aes(x=iris_train$Sepal.Length, colour=iris_train$Species, fill=iris_train$Species)) +
+  geom_density(alpha=.3) +
+  geom_vline(aes(xintercept=mean(iris_train$Sepal.Length),  colour=iris_train$Species),linetype="dashed",color="red", size=1)+
+  xlab("Petal Length (cm)") +  
+  ylab("Density")
+
+```
+
+Looking at the density plot we can see that the petal length has some overlapping areas between the three species of iris flowers.
+
+#Scatter Plot
+
+In order to find out relation between these variables we plot the variables against each other . We first plot petal length and petal width
+
+```{r echo=FALSE}
+library(ggplot2)
+ggplot(data=iris_train,aes(x=iris_train$Petal.Width, y=iris_train$Petal.Length, color= iris_train$Species)) + geom_point() +geom_smooth(se=FALSE) + theme_minimal() + ggtitle("Fig: Scatter plot of sepal length and sepal width")
+
+```
+
+Looking at the above scatter plot, we can see that versicolor and virginica have some flowers with similar petal length and petal width while the petal length and width for setosa is comparatively lower that other species. Also, petal length and petal width seem to have some correlation in each species.
+
+To verify the correlation between the four attributes, we will perform a pair wise correlation plot.
+```{r echo=FALSE}
+library(GGally)
+ggpairs(data = iris_train[1:4],
+        title = "Iris Correlation Plot",
+        upper = list(continuous = wrap("cor", size = 5)), 
+        lower = list(continuous = "smooth")
+       
+)
+```
+
+With the above results, we can see that Petal width and Petal length has a correlation of 96% and sepal length and petal length has a correlation of 87%.
+
